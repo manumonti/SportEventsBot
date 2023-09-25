@@ -7,6 +7,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
+if BOT_TOKEN is None:
+    print ("Error: No Bot Token specified in .env file")
+    exit()
 
 # Show the dates in spanish format
 locale.setlocale(locale.LC_TIME, "es_es")
@@ -15,11 +18,15 @@ locale.setlocale(locale.LC_TIME, "es_es")
 """
 Database
 """
+
+
 mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
 
 """
 Bot
 """
+
+
 tb = telebot.TeleBot(BOT_TOKEN)
 tb.delete_my_commands()
 tb.set_my_commands(
@@ -45,6 +52,8 @@ def send_welcome(message):
 """
 Event management
 """
+
+
 @tb.message_handler(commands=["new", "nuevo"])
 def new_event(message):
     tb.send_message(message.from_user.id, "Se ha seleccionado crear un nuevo evento", )
