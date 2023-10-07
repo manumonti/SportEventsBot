@@ -8,8 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 if BOT_TOKEN is None:
-    print ("Error: No Bot Token specified in .env file")
-    exit()
+    raise AssertionError("BOT_TOKEN variable not found in .env file")
 
 # Show the dates in spanish format
 locale.setlocale(locale.LC_TIME, "es_es")
