@@ -31,7 +31,7 @@ tb.set_my_commands(commands=[telebot.types.BotCommand("nuevo", "Crea un nuevo ev
 
 @tb.message_handler(commands=["start"])
 def send_welcome(message):
-    db = mongo_client["SETG"]
+    db = mongo_client["sportEventsBot"]
 
     if message.chat.type == "group":
         if str(message.chat.id) not in db.list_collection_names():
