@@ -17,24 +17,16 @@ locale.setlocale(locale.LC_TIME, "es_es")
 """
 Database
 """
-
-
 mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
+
 
 """
 Bot
 """
-
-
 tb = telebot.TeleBot(BOT_TOKEN)
 tb.delete_my_commands()
-tb.set_my_commands(
-    commands=[telebot.types.BotCommand("new", "Create a new event")], language_code="en"
-)
-tb.set_my_commands(
-    commands=[telebot.types.BotCommand("nuevo", "Crea un nuevo evento")],
-    language_code="es",
-)
+
+tb.set_my_commands(commands=[telebot.types.BotCommand("nuevo", "Crea un nuevo evento")])
 
 
 @tb.message_handler(commands=["start"])
@@ -51,10 +43,12 @@ def send_welcome(message):
 """
 Event management
 """
-
-
 @tb.message_handler(commands=["new", "nuevo"])
 def new_event(message):
-    tb.send_message(message.from_user.id, "Se ha seleccionado crear un nuevo evento", )
+    tb.send_message(
+        message.from_user.id,
+        "Se ha seleccionado crear un nuevo evento",
+    )
+
 
 tb.infinity_polling()
