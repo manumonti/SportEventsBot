@@ -43,3 +43,11 @@ You have to be running the bot code:
 ```bash
 python bot.py
 ```
+
+## Contribution
+
+`pre-commit` is enabled in this repo. Please, run:
+
+```bash
+pre-commit install
+```
