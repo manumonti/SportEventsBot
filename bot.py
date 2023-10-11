@@ -29,7 +29,7 @@ if BOT_TOKEN is None:
 """
 Sport events creation
 """
-# TODO: Delete /nuevo message when finishing the creation or when cancelling
+# TODO: Delete /crear message when finishing the creation or when cancelling
 TYPE_STATE, DATE_STATE, PLACE_STATE, MIN_PLAYERS_STATE = range(4)
 
 
@@ -148,7 +148,7 @@ def main() -> None:
     application = ApplicationBuilder().token(BOT_TOKEN).build()
 
     new_sport_event_conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("nuevo", new_sport_event)],
+        entry_points=[CommandHandler("crear", new_sport_event)],
         states={
             TYPE_STATE: [
                 CallbackQueryHandler(cancel, pattern="^cancel$"),
