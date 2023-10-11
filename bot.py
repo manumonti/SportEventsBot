@@ -29,6 +29,7 @@ if BOT_TOKEN is None:
 """
 Sport events creation
 """
+# TODO: Delete /nuevo message when finishing the creation or when cancelling
 TYPE_STATE, DATE_STATE, PLACE_STATE, MIN_PLAYERS_STATE = range(4)
 
 
@@ -39,8 +40,11 @@ async def new_sport_event(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         [
             InlineKeyboardButton("Football", callback_data="football"),
             InlineKeyboardButton("Volleyball", callback_data="volleyball"),
+            InlineKeyboardButton("Otro", callback_data="other"),
         ],
-        [InlineKeyboardButton("Otro", callback_data="other")],
+        [
+            InlineKeyboardButton("Cancelar", callback_data="cancel"),
+        ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -50,7 +54,14 @@ async def new_sport_event(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    pass
+    user = update.callback_query.from_user
+
+    query = update.callback_query
+    await query.delete_message()
+
+    logger.info("User %s cancelled the creation of a new sport event", user.first_name)
+
+    return ConversationHandler.END
 
 
 async def event_type(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
@@ -61,7 +72,10 @@ async def event_type(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         [
             InlineKeyboardButton("Hoy", callback_data="today"),
             InlineKeyboardButton("Mañana", callback_data="tomorrow"),
-        ]
+        ],
+        [
+            InlineKeyboardButton("Cancelar", callback_data="cancel"),
+        ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -76,10 +90,16 @@ async def event_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await query.answer()
     keyboard = [
         [
-            InlineKeyboardButton("El Campito", callback_data="campito"),
-            InlineKeyboardButton("El Cañadón", callback_data="cañadon"),
-            InlineKeyboardButton("Playa del Ilunion", callback_data="ilunion"),
-        ]
+            InlineKeyboardButton("Campito", callback_data="campito"),
+            InlineKeyboardButton("Cañadón", callback_data="cañadon"),
+        ],
+        [
+            InlineKeyboardButton("Ilunion", callback_data="ilunion"),
+            InlineKeyboardButton("Otro", callback_data="ilunion"),
+        ],
+        [
+            InlineKeyboardButton("Cancelar", callback_data="cancel"),
+        ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -98,7 +118,10 @@ async def event_place(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
             InlineKeyboardButton("6", callback_data="6"),
             InlineKeyboardButton("10", callback_data="10"),
             InlineKeyboardButton("14", callback_data="14"),
-        ]
+        ],
+        [
+            InlineKeyboardButton("Cancelar", callback_data="cancel"),
+        ],
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -127,12 +150,24 @@ def main() -> None:
     new_sport_event_conv_handler = ConversationHandler(
         entry_points=[CommandHandler("nuevo", new_sport_event)],
         states={
-            TYPE_STATE: [CallbackQueryHandler(event_type)],
-            DATE_STATE: [CallbackQueryHandler(event_date)],
-            PLACE_STATE: [CallbackQueryHandler(event_place)],
-            MIN_PLAYERS_STATE: [CallbackQueryHandler(event_min_players)],
+            TYPE_STATE: [
+                CallbackQueryHandler(cancel, pattern="^cancel$"),
+                CallbackQueryHandler(event_type),
+            ],
+            DATE_STATE: [
+                CallbackQueryHandler(cancel, pattern="^cancel$"),
+                CallbackQueryHandler(event_date),
+            ],
+            PLACE_STATE: [
+                CallbackQueryHandler(cancel, pattern="^cancel$"),
+                CallbackQueryHandler(event_place),
+            ],
+            MIN_PLAYERS_STATE: [
+                CallbackQueryHandler(cancel, pattern="^cancel$"),
+                CallbackQueryHandler(event_min_players),
+            ],
         },
-        fallbacks=[CommandHandler("cancel", cancel)],
+        fallbacks=[CallbackQueryHandler(cancel)],
     )
 
     application.add_handler(new_sport_event_conv_handler)
