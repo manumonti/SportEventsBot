@@ -35,7 +35,7 @@ async def list_sport_events(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     keyboard = [
         [
             InlineKeyboardButton(
-                text="🏐 *Vie 15/10 16:30 Volleyball Ilunion 3/6* 👎",
+                text="🏐 Vie 15/10 16:30 Volleyball Ilunion 3/6 👎",
                 callback_data="15/10",
             )
         ],
