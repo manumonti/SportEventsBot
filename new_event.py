@@ -23,14 +23,14 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.delete_message()
 
-    logger.info("User %s cancelled the creation of a new sport event", user.first_name)
+    logger.info("User %s cancelled the creation of a new sport event", user.full_name)
 
     return ConversationHandler.END
 
 
 async def new_event(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
-    logger.info("User %s started creating a new sport event", user.first_name)
+    logger.info("User %s started creating a new sport event", user.full_name)
     keyboard = [
         [
             InlineKeyboardButton(text="Football", callback_data="football"),
@@ -52,6 +52,7 @@ async def event_type(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # TODO: save the event type
     query = update.callback_query
     await query.answer()
+    logger.info("User %s selected %s event type", query.from_user.full_name, query.data)
     keyboard = [
         [
             InlineKeyboardButton(text="Hoy", callback_data="today"),
@@ -72,6 +73,7 @@ async def event_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # TODO: save the event date
     query = update.callback_query
     await query.answer()
+    logger.info("User %s selected %s event date", query.from_user.full_name, query.data)
     keyboard = [
         [
             InlineKeyboardButton(text="Campito", callback_data="campito"),
@@ -96,6 +98,9 @@ async def event_place(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     # TODO: save the event place
     query = update.callback_query
     await query.answer()
+    logger.info(
+        "User %s selected %s event place", query.from_user.full_name, query.data
+    )
     keyboard = [
         [
             InlineKeyboardButton(text="4", callback_data="4"),
@@ -121,9 +126,15 @@ async def event_min_players(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     query = update.callback_query
     await query.answer()
-    await query.edit_message_text(text="Evento registrado!")
+    logger.info(
+        "User %s selected %s as event min players",
+        query.from_user.full_name,
+        query.data,
+    )
 
-    logger.info("User %s created a new event", user.first_name)
+    await query.edit_message_text(text="Se ha creado el evento!")
+
+    logger.info("User %s created a new event", user.full_name)
 
     return ConversationHandler.END
 
