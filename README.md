@@ -1,6 +1,6 @@
-![](https://i.imgur.com/Qcjs0fA.png)
-
 # Sport Events Telegram Bot
+
+![](https://i.imgur.com/Qcjs0fA.png)
 
 A Telegram bot to track and manage the sport events organized by your social group. Create new
 football or volleyball matches. Tell your friends to join them and keep track of the date, place
