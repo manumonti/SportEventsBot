@@ -1,3 +1,4 @@
+import locale
 import logging
 import os
 
@@ -7,7 +8,7 @@ from telegram.ext import ApplicationBuilder
 from list_events import list_events_conv_handler
 from new_event import new_event_conv_handler
 
-# Enable logging
+# enable logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
@@ -15,6 +16,9 @@ logging.basicConfig(
 logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
+
+# set time format to Spanish
+locale.setlocale(locale.LC_TIME, "es_ES")
 
 load_dotenv()
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
