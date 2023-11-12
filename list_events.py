@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.constants import ParseMode
 from telegram.ext import (
     CallbackQueryHandler,
     CommandHandler,
@@ -25,7 +26,8 @@ events = [
         "date": 1701448200,
         "place": "Ilunion",
         "min_players": 6,
-        "players": ["Manu M.", "Eugenia", "Laura"],
+        "players": ["Manu M", "Eugenia", "Laura"],
+        "players_emoji": "👎",
     },
     {
         "id": 1,
@@ -37,7 +39,7 @@ events = [
         "players": [
             "Laura",
             "María",
-            "Manu M.",
+            "Manu M",
             "Eugenia",
             "Carlos",
             "Daniel",
@@ -46,6 +48,7 @@ events = [
             "Benji",
             "Rafa",
         ],
+        "players_emoji": "🤏",
     },
     {
         "id": 2,
@@ -55,6 +58,7 @@ events = [
         "place": "Campillos",
         "min_players": 6,
         "players": ["Rafa", "Benji", "Eugenia", "María", "Carlos", "Álvaro", "Miguel"],
+        "players_emoji": "👍",
     },
 ]
 
@@ -74,22 +78,15 @@ async def list_sport_events(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     keyboard = []
 
     for event in events:
-        if len(event["players"]) >= event["min_players"]:
-            players_emoji = "👍"
-        elif len(event["players"]) >= event["min_players"] - 2:
-            players_emoji = "🤏"
-        else:
-            players_emoji = "👎"
-
         date = datetime.fromtimestamp(event["date"]).strftime("%a %-d/%-m %-I:%M")
 
         text = (
             f"{event["emoji"]} {event["type"]} - {date} - {event["place"]} - "
-            + f"{len(event["players"])}/{event["min_players"]} {players_emoji}"
+            + f"{len(event["players"])}/{event["min_players"]} {event["players_emoji"]}"
         )
         keyboard.append([InlineKeyboardButton(text=text, callback_data=event["id"])])
 
-    (keyboard.append([InlineKeyboardButton(text="Cancelar", callback_data="cancel")]),)
+    keyboard.append([InlineKeyboardButton(text="Cancelar", callback_data="cancel")])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -103,7 +100,34 @@ async def event_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await query.answer()
     logger.info("User %s requested info of %s", query.from_user.full_name, query.data)
 
-    await query.delete_message()
+    event = events[int(query.data)]
+
+    date = datetime.fromtimestamp(event["date"]).strftime("%a %-d/%-m %-I:%M")
+
+    text = (
+        f"*{event["emoji"]} {event["type"]} {event["emoji"]}*\n"
+        + f"📅 {date}\n"
+        + f"📍 {event["place"]}\n"
+        + f"👫 {len(event["players"])}/{event["min_players"]} "
+        + f"{event["players_emoji"]}\n"
+    )
+
+    for player in event["players"]:
+        text += f"  🏃 {player}\n"
+
+    keyboard = [
+        [
+            InlineKeyboardButton(text="Modificar evento", callback_data="cancel"),
+            InlineKeyboardButton(text="Apuntarme", callback_data="cancel"),
+        ],
+        [InlineKeyboardButton(text="Cancelar", callback_data="cancel")],
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await query.edit_message_text(
+        text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=reply_markup
+    )
 
     return ConversationHandler.END
 
@@ -115,8 +139,6 @@ list_events_conv_handler = ConversationHandler(
             CallbackQueryHandler(cancel, pattern="^cancel$"),
             CallbackQueryHandler(event_info),
         ],
-        # MODIFY_STATE: [
-        # ]
     },
     fallbacks=[CallbackQueryHandler(cancel)],
 )
