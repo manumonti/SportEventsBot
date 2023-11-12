@@ -21,29 +21,40 @@ events = [
     {
         "id": 0,
         "type": "Volleyball",
+        "emoji": "🏐",
         "date": 1701448200,
         "place": "Ilunion",
         "min_players": 6,
-        "players": 3,
-        "emoji": "🏐",
+        "players": ["Manu M.", "Eugenia", "Laura"],
     },
     {
         "id": 1,
         "type": "Football",
+        "emoji": "⚽️",
         "date": 1701540000,
         "place": "Campito peq",
         "min_players": 12,
-        "players": 10,
-        "emoji": "⚽️",
+        "players": [
+            "Laura",
+            "María",
+            "Manu M.",
+            "Eugenia",
+            "Carlos",
+            "Daniel",
+            "Álvaro",
+            "Miguel",
+            "Benji",
+            "Rafa",
+        ],
     },
     {
         "id": 2,
         "type": "Karting",
+        "emoji": "🏎️",
         "date": 1701597600,
         "place": "Campillos",
         "min_players": 6,
-        "players": 11,
-        "emoji": "🏎️",
+        "players": ["Rafa", "Benji", "Eugenia", "María", "Carlos", "Álvaro", "Miguel"],
     },
 ]
 
@@ -63,9 +74,9 @@ async def list_sport_events(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     keyboard = []
 
     for event in events:
-        if event["players"] >= event["min_players"]:
+        if len(event["players"]) >= event["min_players"]:
             players_emoji = "👍"
-        elif event["players"] >= event["min_players"] - 2:
+        elif len(event["players"]) >= event["min_players"] - 2:
             players_emoji = "🤏"
         else:
             players_emoji = "👎"
@@ -74,7 +85,7 @@ async def list_sport_events(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
         text = (
             f"{event["emoji"]} {event["type"]} - {date} - {event["place"]} - "
-            + f"{event["players"]}/{event["min_players"]} {players_emoji}"
+            + f"{len(event["players"])}/{event["min_players"]} {players_emoji}"
         )
         keyboard.append([InlineKeyboardButton(text=text, callback_data=event["id"])])
 
