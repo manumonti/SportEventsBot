@@ -14,28 +14,18 @@ logger = logging.getLogger(__name__)
 Sport events creation
 """
 
-TYPE_STATE, DATE_STATE, PLACE_STATE, MIN_PLAYERS_STATE = range(4)
+SELECTING_GAME, SELECTING_DATE, SELECTING_PLACE, SELECTING_PLAYERS = range(4)
 
 
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    user = update.callback_query.from_user
+async def select_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
-    query = update.callback_query
-    await query.delete_message()
-
-    logger.info("User %s cancelled the creation of a new sport event", user.full_name)
-
-    return ConversationHandler.END
-
-
-async def new_event(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
     logger.info("User %s started creating a new sport event", user.full_name)
+
     keyboard = [
         [
             InlineKeyboardButton(text="Football", callback_data="football"),
             InlineKeyboardButton(text="Volleyball", callback_data="volleyball"),
-            InlineKeyboardButton(text="Otro", callback_data="other"),
         ],
         [
             InlineKeyboardButton(text="Cancelar", callback_data="cancel"),
@@ -45,14 +35,15 @@ async def new_event(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     await update.message.reply_text(text="Tipo de evento", reply_markup=reply_markup)
 
-    return TYPE_STATE
+    return SELECTING_GAME
 
 
-async def event_type(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    # TODO: save the event type
+async def select_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+
     query = update.callback_query
     await query.answer()
-    logger.info("User %s selected %s event type", query.from_user.full_name, query.data)
+    logger.info("User %s selected %s game", query.from_user.full_name, query.data)
+
     keyboard = [
         [
             InlineKeyboardButton(text="Hoy", callback_data="today"),
@@ -66,14 +57,13 @@ async def event_type(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     await query.edit_message_text(text="Fecha", reply_markup=reply_markup)
 
-    return DATE_STATE
+    return SELECTING_DATE
 
 
-async def event_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    # TODO: save the event date
+async def select_place(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
-    logger.info("User %s selected %s event date", query.from_user.full_name, query.data)
+    logger.info("User %s selected %s date", query.from_user.full_name, query.data)
     keyboard = [
         [
             InlineKeyboardButton(text="Campito", callback_data="campito"),
@@ -81,7 +71,6 @@ async def event_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         ],
         [
             InlineKeyboardButton(text="Ilunion", callback_data="ilunion"),
-            InlineKeyboardButton(text="Otro", callback_data="ilunion"),
         ],
         [
             InlineKeyboardButton(text="Cancelar", callback_data="cancel"),
@@ -91,15 +80,17 @@ async def event_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
     await query.edit_message_text(text="Lugar", reply_markup=reply_markup)
 
-    return PLACE_STATE
+    return SELECTING_PLACE
 
 
-async def event_place(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    # TODO: save the event place
+
+
+
+async def select_players(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
     logger.info(
-        "User %s selected %s event place", query.from_user.full_name, query.data
+        "User %s selected %s place", query.from_user.full_name, query.data
     )
     keyboard = [
         [
@@ -116,47 +107,53 @@ async def event_place(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
     await query.edit_message_text(text="Mínimo de jugadores", reply_markup=reply_markup)
 
-    return MIN_PLAYERS_STATE
+    return SELECTING_PLAYERS
 
 
-async def event_min_players(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    # TODO: save the event min players
-    # TODO: save the new event in DB
-    user = update.callback_query.from_user
-
+async def save(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
     logger.info(
-        "User %s selected %s as event min players",
-        query.from_user.full_name,
-        query.data,
+        "User %s selected %s min players", query.from_user.full_name, query.data
     )
+    logger.info("User %s created a new event", query.from_user.full_name)
 
-    await query.edit_message_text(text="Se ha creado el evento!")
+    # TODO: save the new event data
 
-    logger.info("User %s created a new event", user.full_name)
+    await query.edit_message_text(text="Se ha creado un nuevo evento!")
+
+    return ConversationHandler.END
+
+
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    user = update.callback_query.from_user
+
+    query = update.callback_query
+    await query.delete_message()
+
+    logger.info("User %s cancelled the creation of a new sport event", user.full_name)
 
     return ConversationHandler.END
 
 
 new_event_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("crear", new_event)],
+    entry_points=[CommandHandler("crear", select_game)],
     states={
-        TYPE_STATE: [
+        SELECTING_GAME: [
             CallbackQueryHandler(cancel, pattern="^cancel$"),
-            CallbackQueryHandler(event_type),
+            CallbackQueryHandler(select_date),
         ],
-        DATE_STATE: [
+        SELECTING_DATE: [
             CallbackQueryHandler(cancel, pattern="^cancel$"),
-            CallbackQueryHandler(event_date),
+            CallbackQueryHandler(select_place),
         ],
-        PLACE_STATE: [
+        SELECTING_PLACE: [
             CallbackQueryHandler(cancel, pattern="^cancel$"),
-            CallbackQueryHandler(event_place),
+            CallbackQueryHandler(select_players),
         ],
-        MIN_PLAYERS_STATE: [
+        SELECTING_PLAYERS: [
             CallbackQueryHandler(cancel, pattern="^cancel$"),
-            CallbackQueryHandler(event_min_players),
+            CallbackQueryHandler(save),
         ],
     },
     fallbacks=[CallbackQueryHandler(cancel)],
