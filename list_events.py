@@ -16,26 +16,21 @@ logger = logging.getLogger(__name__)
 Sport events listing
 """
 
-INFO_STATE, MODIFY_STATE = range(2)
+SELECTING_EVENT, DETAILING_EVENT = range(2)
 
 events = [
     {
         "id": 0,
-        "type": "Volleyball",
-        "emoji": "🏐",
+        "game": "🏐 Volleyball",
         "date": 1701448200,
         "place": "Ilunion",
-        "min_players": 6,
         "players": ["Manu M", "Eugenia", "Laura"],
-        "players_emoji": "👎",
     },
     {
         "id": 1,
-        "type": "Football",
-        "emoji": "⚽️",
+        "game": "⚽️ Football",
         "date": 1701540000,
         "place": "Campito peq",
-        "min_players": 12,
         "players": [
             "Laura",
             "María",
@@ -48,41 +43,26 @@ events = [
             "Benji",
             "Rafa",
         ],
-        "players_emoji": "🤏",
     },
     {
         "id": 2,
-        "type": "Karting",
-        "emoji": "🏎️",
+        "game": "🏎️ Karting",
         "date": 1701597600,
         "place": "Campillos",
-        "min_players": 6,
         "players": ["Rafa", "Benji", "Eugenia", "María", "Carlos", "Álvaro", "Miguel"],
-        "players_emoji": "👍",
     },
 ]
 
 
-async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    user = update.callback_query.from_user
+async def list_events(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    user = update.message.from_user
+    logger.info("User %s listed events", user.full_name)
 
-    query = update.callback_query
-    await query.delete_message()
-
-    logger.info("User %s cancelled the listing of sport events", user.full_name)
-
-    return ConversationHandler.END
-
-
-async def list_sport_events(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     keyboard = []
-
     for event in events:
         date = datetime.fromtimestamp(event["date"]).strftime("%a %-d/%-m %-I:%M")
-
         text = (
-            f"{event["emoji"]} {event["type"]} - {date} - {event["place"]} - "
-            + f"{len(event["players"])}/{event["min_players"]} {event["players_emoji"]}"
+            f"{event["game"]} - {event["place"]} - {date} - 👫 {len(event["players"])}"
         )
         keyboard.append([InlineKeyboardButton(text=text, callback_data=event["id"])])
 
@@ -92,24 +72,22 @@ async def list_sport_events(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
     await update.message.reply_text(text="Próximos eventos", reply_markup=reply_markup)
 
-    return INFO_STATE
+    return SELECTING_EVENT
 
 
-async def event_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+async def detail_event(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
-    logger.info("User %s requested info of %s", query.from_user.full_name, query.data)
+    logger.info("User %s detailed event #%s", query.from_user.full_name, query.data)
 
     event = events[int(query.data)]
 
     date = datetime.fromtimestamp(event["date"]).strftime("%a %-d/%-m %-I:%M")
-
     text = (
-        f"*{event["emoji"]} {event["type"]} {event["emoji"]}*\n"
+        f"*{event["game"]}*\n"
         + f"📅 {date}\n"
         + f"📍 {event["place"]}\n"
-        + f"👫 {len(event["players"])}/{event["min_players"]} "
-        + f"{event["players_emoji"]}\n"
+        + f"👫 {len(event["players"])}\n"
     )
 
     for player in event["players"]:
@@ -129,16 +107,30 @@ async def event_info(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         text=text, parse_mode=ParseMode.MARKDOWN_V2, reply_markup=reply_markup
     )
 
+    return DETAILING_EVENT
+
+
+async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    user = update.callback_query.from_user
+
+    query = update.callback_query
+    await query.delete_message()
+
+    logger.info("User %s cancelled the listing of sport events", user.full_name)
+
     return ConversationHandler.END
 
 
 list_events_conv_handler = ConversationHandler(
-    entry_points=[CommandHandler("lista", list_sport_events)],
+    entry_points=[CommandHandler("lista", list_events)],
     states={
-        INFO_STATE: [
+        SELECTING_EVENT: [
             CallbackQueryHandler(cancel, pattern="^cancel$"),
-            CallbackQueryHandler(event_info),
+            CallbackQueryHandler(detail_event),
         ],
+        DETAILING_EVENT: [
+            CallbackQueryHandler(cancel, pattern="^cancel$"),
+        ]
     },
     fallbacks=[CallbackQueryHandler(cancel)],
 )
