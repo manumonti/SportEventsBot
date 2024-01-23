@@ -18,10 +18,10 @@ SELECTING_GAME, SELECTING_DATE, SELECTING_PLACE, SELECTING_PLAYERS = range(4)
 
 
 async def select_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-
     user = update.message.from_user
     logger.info("User %s started creating a new sport event", user.full_name)
 
+    # TODO: Add "otro" button that allows to write. See nestedconversationbot example
     keyboard = [
         [
             InlineKeyboardButton(text="Football", callback_data="football"),
@@ -39,11 +39,11 @@ async def select_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
 
 
 async def select_date(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-
     query = update.callback_query
     await query.answer()
     logger.info("User %s selected %s game", query.from_user.full_name, query.data)
 
+    # TODO: Add a calendar
     keyboard = [
         [
             InlineKeyboardButton(text="Hoy", callback_data="today"),
@@ -64,6 +64,8 @@ async def select_place(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     query = update.callback_query
     await query.answer()
     logger.info("User %s selected %s date", query.from_user.full_name, query.data)
+
+    # TODO: Add "otro" button that allows to write. See nestedconversationbot example
     keyboard = [
         [
             InlineKeyboardButton(text="Campito", callback_data="campito"),
@@ -83,15 +85,12 @@ async def select_place(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     return SELECTING_PLACE
 
 
-
-
-
 async def select_players(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
-    logger.info(
-        "User %s selected %s place", query.from_user.full_name, query.data
-    )
+    logger.info("User %s selected %s place", query.from_user.full_name, query.data)
+
+    # TODO: Add "otro" button that allows to write. See nestedconversationbot example
     keyboard = [
         [
             InlineKeyboardButton(text="4", callback_data="4"),
@@ -118,7 +117,7 @@ async def save(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     )
     logger.info("User %s created a new event", query.from_user.full_name)
 
-    # TODO: save the new event data
+    # TODO: save here the new event data collected through the flow
 
     await query.edit_message_text(text="Se ha creado un nuevo evento!")
 
