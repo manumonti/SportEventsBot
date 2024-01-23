@@ -85,30 +85,6 @@ async def select_place(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     return SELECTING_PLACE
 
 
-async def select_players(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    await query.answer()
-    logger.info("User %s selected %s place", query.from_user.full_name, query.data)
-
-    # TODO: Add "otro" button that allows to write. See nestedconversationbot example
-    keyboard = [
-        [
-            InlineKeyboardButton(text="4", callback_data="4"),
-            InlineKeyboardButton(text="6", callback_data="6"),
-            InlineKeyboardButton(text="10", callback_data="10"),
-            InlineKeyboardButton(text="14", callback_data="14"),
-        ],
-        [
-            InlineKeyboardButton(text="Cancelar", callback_data="cancel"),
-        ],
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await query.edit_message_text(text="Mínimo de jugadores", reply_markup=reply_markup)
-
-    return SELECTING_PLAYERS
-
-
 async def save(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
@@ -147,10 +123,6 @@ new_event_conv_handler = ConversationHandler(
             CallbackQueryHandler(select_place),
         ],
         SELECTING_PLACE: [
-            CallbackQueryHandler(cancel, pattern="^cancel$"),
-            CallbackQueryHandler(select_players),
-        ],
-        SELECTING_PLAYERS: [
             CallbackQueryHandler(cancel, pattern="^cancel$"),
             CallbackQueryHandler(save),
         ],

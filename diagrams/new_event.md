@@ -12,12 +12,8 @@ flowchart TB
     F --> |Lugar: <br /> - Campito <br /> - Cañadón <br /> - Ilunion <br /> - Cancelar| H(("SELECTING_PLACE")):::state
     H --> I("(choice)"):::userInput
     H --> J("Cancelar"):::userInput
+    I --> |"[save]"| End
     J --> End
-    I --> |Mínimo de jugadores: <br /> - 4 <br /> - 8 <br /> - 10 <br /> - 12| K(("SELECTING_PLAYERS")):::state
-    K --> L("(choice)"):::userInput
-    K --> M("Cancelar"):::userInput
-    M --> End
-    L --> |"[save]"| End
     classDef userInput fill:#2a5279, color:#ffffff, stroke:#ffffff
     classDef state fill:#222222, color:#ffffff, stroke:#ffffff
     classDef entryPoint fill:#009c11, stroke:#42FF57, color:#ffffff
