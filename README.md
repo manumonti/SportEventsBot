@@ -1,5 +1,4 @@
 # Sport Events Telegram Bot
-
 ![](https://i.imgur.com/Qcjs0fA.png)
 
 A Telegram bot to track and manage the sport events organized by your social group. Create new
@@ -7,7 +6,6 @@ football or volleyball matches. Tell your friends to join them and keep track of
 and who goes.
 
 ## Features
-
 - Creation/cancellation of events [TBD]
 - Users join/sign out events [TBD]
 - Logs are shown in chats (users join, events created...) [TBD]
@@ -15,12 +13,7 @@ and who goes.
 - Management of Google calendar [TBD]
 
 ## Installation
-
-A running MongoDB server is needed:
-
-https://www.mongodb.com/try/download/community
-
-Also, it is needed to have your own Telegram Bot Token:
+It is needed to have your own Telegram Bot Token:
 
 [Obtain Your Bot Token](https://core.telegram.org/bots/tutorial#obtain-your-bot-token)
 
@@ -37,7 +30,6 @@ pip install -r requirements.txt
 ```
 
 ### Running the Bot
-
 You have to be running the bot code:
 
 ```bash
@@ -45,7 +37,6 @@ python bot.py
 ```
 
 ## Contribution
-
 `pre-commit` is enabled in this repo. Please, run:
 
 ```bash
